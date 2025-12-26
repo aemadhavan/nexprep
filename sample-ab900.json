@@ -1,0 +1,235 @@
+{
+  "exam": {
+    "code": "AB-900",
+    "name": "Copilot & Agent Administration Fundamentals",
+    "provider": "Microsoft",
+    "description": "This exam measures your ability to describe the core features and objects of Microsoft 365 services, configure Microsoft 365 Copilot, and administer AI agents in Microsoft 365 environments.",
+    "phase": 1,
+    "price": 0
+  },
+  "domains": [
+    {
+      "title": "Identify the core features and objects of Microsoft 365 services",
+      "order": 1,
+      "categories": [
+        {
+          "title": "Identify the core objects of Microsoft 365 services",
+          "order": 1,
+          "skills": [
+            {
+              "title": "Explain how license types assigned to users and groups affect access to Microsoft 365 features",
+              "order": 1,
+              "flashcards": [
+                {
+                  "question": "What determines access to Microsoft 365 Copilot features?",
+                  "answer": "License types assigned to users and groups",
+                  "explanation": "Different license tiers (E3, E5, Business Standard, etc.) unlock different Microsoft 365 features including Copilot capabilities. Users must be assigned appropriate licenses to access specific features."
+                },
+                {
+                  "question": "Can group-based licensing automatically assign Copilot licenses to users?",
+                  "answer": "Yes, licenses can be assigned to security groups, and members automatically inherit those licenses",
+                  "explanation": "Microsoft 365 supports group-based licensing where you assign licenses to Azure AD security groups. When users are added to the group, they automatically receive the assigned licenses."
+                },
+                {
+                  "question": "What happens when a user's Copilot license is removed?",
+                  "answer": "The user immediately loses access to Copilot features and their data is retained for 30 days",
+                  "explanation": "License removal results in immediate loss of access to licensed features. User data associated with those features is retained in a grace period (typically 30 days) before permanent deletion."
+                }
+              ]
+            },
+            {
+              "title": "Describe tenant, identity, and Microsoft Entra ID concepts",
+              "order": 2,
+              "flashcards": [
+                {
+                  "question": "What is a Microsoft 365 tenant?",
+                  "answer": "A dedicated instance of Microsoft 365 services that represents an organization",
+                  "explanation": "A tenant is a dedicated and trusted instance of Azure AD and Microsoft 365 services. It's created when you sign up for Microsoft 365 and serves as the boundary for your organization's data and configuration."
+                },
+                {
+                  "question": "What is Microsoft Entra ID (formerly Azure AD)?",
+                  "answer": "Microsoft's cloud-based identity and access management service",
+                  "explanation": "Microsoft Entra ID is the identity provider for Microsoft 365 services. It manages user identities, authentication, and authorization across Microsoft cloud services and integrates with on-premises Active Directory."
+                },
+                {
+                  "question": "What are the three main identity types in Microsoft Entra ID?",
+                  "answer": "Cloud-only identities, synchronized identities, and federated identities",
+                  "explanation": "Cloud-only: exist only in Entra ID. Synchronized: synced from on-premises AD to cloud. Federated: authentication happens in on-premises systems but users can access cloud resources."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Identify Microsoft 365 admin centers and their purpose",
+          "order": 2,
+          "skills": [
+            {
+              "title": "Describe the purpose of Microsoft 365 admin center",
+              "order": 1,
+              "flashcards": [
+                {
+                  "question": "What is the primary purpose of the Microsoft 365 admin center?",
+                  "answer": "Central hub for managing Microsoft 365 services, users, licenses, and settings",
+                  "explanation": "The Microsoft 365 admin center (admin.microsoft.com) is the main portal for administrators to manage users, assign licenses, configure service settings, and monitor service health."
+                },
+                {
+                  "question": "Which admin center is used specifically for managing Copilot settings?",
+                  "answer": "Microsoft 365 admin center and Microsoft 365 Apps admin center",
+                  "explanation": "Copilot settings can be managed from the Microsoft 365 admin center under Settings > Copilot, and more detailed controls are available in the Microsoft 365 Apps admin center."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Configure and manage Microsoft 365 Copilot",
+      "order": 2,
+      "categories": [
+        {
+          "title": "Deploy and configure Microsoft 365 Copilot",
+          "order": 1,
+          "skills": [
+            {
+              "title": "Identify licensing requirements for Microsoft 365 Copilot",
+              "order": 1,
+              "flashcards": [
+                {
+                  "question": "What are the licensing prerequisites for Microsoft 365 Copilot?",
+                  "answer": "Users need a Microsoft 365 E3/E5 or Business Standard/Premium license, plus a Copilot for Microsoft 365 license",
+                  "explanation": "Copilot requires a base Microsoft 365 license (E3, E5, Business Standard, or Business Premium) and an additional Copilot for Microsoft 365 add-on license per user."
+                },
+                {
+                  "question": "Can Microsoft 365 Copilot work with Basic or F-series licenses?",
+                  "answer": "No, Copilot requires E3/E5 or Business Standard/Premium base licenses",
+                  "explanation": "Basic and Frontline (F-series) licenses do not meet the minimum requirements. Users must have either Enterprise (E3/E5) or Business (Standard/Premium) licenses."
+                }
+              ]
+            },
+            {
+              "title": "Configure Copilot settings and data policies",
+              "order": 2,
+              "flashcards": [
+                {
+                  "question": "Where in Microsoft 365 does Copilot's data stay?",
+                  "answer": "Within your Microsoft 365 tenant boundary and complies with existing data residency commitments",
+                  "explanation": "Copilot processes and stores data within your organization's Microsoft 365 tenant. It respects tenant boundaries and doesn't share data across tenants or use your data to train foundation models."
+                },
+                {
+                  "question": "How can administrators control which users can access Copilot?",
+                  "answer": "Through license assignment and optionally Azure AD Conditional Access policies",
+                  "explanation": "Primary control is through license assignment. Additionally, admins can use Conditional Access policies to add extra requirements like MFA, device compliance, or location-based restrictions."
+                },
+                {
+                  "question": "What is the Copilot data retention policy?",
+                  "answer": "Copilot interactions are subject to your organization's existing Microsoft 365 retention policies",
+                  "explanation": "Data generated by Copilot (prompts, responses, files) follows the same retention, deletion, and eDiscovery policies as other Microsoft 365 data in your tenant."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Monitor and optimize Copilot usage",
+          "order": 2,
+          "skills": [
+            {
+              "title": "Use Microsoft 365 admin center to monitor Copilot adoption",
+              "order": 1,
+              "flashcards": [
+                {
+                  "question": "Where can admins view Copilot usage analytics?",
+                  "answer": "Microsoft 365 admin center > Reports > Usage > Microsoft 365 Copilot",
+                  "explanation": "The usage reports section provides insights into Copilot adoption, including active users, usage trends by application (Word, Excel, Teams, etc.), and user engagement metrics."
+                },
+                {
+                  "question": "What metrics are available in Copilot usage reports?",
+                  "answer": "Active users, usage by app, enablement rate, adoption trends, and user engagement",
+                  "explanation": "Reports show how many licensed users are actively using Copilot, which applications they use it in, adoption rates over time, and patterns of engagement."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Administer AI agents in Microsoft 365",
+      "order": 3,
+      "categories": [
+        {
+          "title": "Understand AI agents and their capabilities",
+          "order": 1,
+          "skills": [
+            {
+              "title": "Describe the purpose and types of AI agents in Microsoft 365",
+              "order": 1,
+              "flashcards": [
+                {
+                  "question": "What is an AI agent in Microsoft 365?",
+                  "answer": "An autonomous AI-powered assistant that can perform tasks, answer questions, and automate workflows on behalf of users",
+                  "explanation": "AI agents in Microsoft 365 are specialized bots built on Copilot technology that can independently execute tasks, make decisions within defined parameters, and interact with various Microsoft 365 services and data."
+                },
+                {
+                  "question": "What are the main types of agents available in Microsoft 365?",
+                  "answer": "Declarative agents, custom engine agents, and Power Platform connectors",
+                  "explanation": "Declarative agents are pre-built with specific instructions, custom engine agents use specialized models or logic, and connector-based agents integrate with external systems through Power Platform."
+                },
+                {
+                  "question": "How do agents differ from traditional chatbots?",
+                  "answer": "Agents can take autonomous actions, access organizational data, and execute multi-step workflows without constant user input",
+                  "explanation": "Unlike simple chatbots that only respond to queries, agents can proactively perform tasks, make API calls, access files and data across Microsoft 365, and complete complex workflows based on natural language instructions."
+                }
+              ]
+            },
+            {
+              "title": "Configure and deploy custom agents using Copilot Studio",
+              "order": 2,
+              "flashcards": [
+                {
+                  "question": "What is Microsoft Copilot Studio?",
+                  "answer": "A low-code platform for creating, customizing, and managing custom AI agents and Copilot extensions",
+                  "explanation": "Copilot Studio allows organizations to build custom agents tailored to their business needs, configure agent behavior, connect to enterprise data, and deploy agents across Microsoft 365 applications."
+                },
+                {
+                  "question": "What permissions are required to create agents in Copilot Studio?",
+                  "answer": "Users need appropriate licenses and must be assigned the Environment Maker or System Administrator role",
+                  "explanation": "Creating agents requires Power Platform licenses and specific role assignments. Environment Makers can create agents in their environments, while System Administrators have full control."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Manage agent security and governance",
+          "order": 2,
+          "skills": [
+            {
+              "title": "Implement security controls for AI agents",
+              "order": 1,
+              "flashcards": [
+                {
+                  "question": "How can administrators control which users can interact with specific agents?",
+                  "answer": "Through agent sharing settings, security groups, and Power Platform data loss prevention policies",
+                  "explanation": "Admins can configure sharing permissions for each agent, restrict access to specific Azure AD groups, and use DLP policies to control what data agents can access and process."
+                },
+                {
+                  "question": "What is the principle of least privilege for agents?",
+                  "answer": "Agents should only have access to the minimum data and permissions necessary to perform their intended functions",
+                  "explanation": "Following least privilege, configure agents with only the specific connectors, data sources, and API permissions they need. Avoid granting broad admin or tenant-wide access unless absolutely required."
+                },
+                {
+                  "question": "How are agent conversations audited and logged?",
+                  "answer": "Through Microsoft 365 audit logs, Power Platform analytics, and optionally Azure Monitor",
+                  "explanation": "Agent interactions are logged in the unified audit log and can be searched using eDiscovery tools. Power Platform provides analytics on agent usage, and Azure Monitor can be configured for advanced monitoring."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
