@@ -84,3 +84,4 @@ export const flashcardsRelations = relations(flashcards, ({ one }) => ({
     references: [skills.id],
   }),
 }));
+
