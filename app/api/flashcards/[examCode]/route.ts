@@ -108,7 +108,7 @@ export async function GET(
     if (dueOnly) {
       conditions.push(
         or(
-          sql`${userFlashcardProgress.next_review_date} <= NOW()`,
+          sql`${userFlashcardProgress.nextReviewDate} <= NOW()`,
           sql`${userFlashcardProgress.id} IS NULL`
         )
       );
