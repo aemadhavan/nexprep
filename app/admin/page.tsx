@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, BookOpen, Users, Activity, UserPlus } from "lucide-react";
+import { Upload, BookOpen, Users, Activity, UserPlus, FolderTree, Layers, Target } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 
@@ -119,14 +119,73 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>Manage Exams</CardTitle>
               <CardDescription>
-                View and edit existing exam content
+                Create, edit, and configure exams
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline" disabled>
-                <BookOpen className="mr-2 h-4 w-4" />
-                Manage Exams (Coming Soon)
-              </Button>
+              <Link href="/admin/exams">
+                <Button className="w-full">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Manage Exams
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Content Management */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Content Management</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Domains</CardTitle>
+              <CardDescription>
+                Organize exam content by domains
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin/domains">
+                <Button className="w-full" variant="outline">
+                  <FolderTree className="mr-2 h-4 w-4" />
+                  Manage Domains
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Categories</CardTitle>
+              <CardDescription>
+                Organize domains into categories
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin/categories">
+                <Button className="w-full" variant="outline">
+                  <Layers className="mr-2 h-4 w-4" />
+                  Manage Categories
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Skills</CardTitle>
+              <CardDescription>
+                Define skills within categories
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin/skills">
+                <Button className="w-full" variant="outline">
+                  <Target className="mr-2 h-4 w-4" />
+                  Manage Skills
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
