@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, BookOpen, Users, Activity, UserPlus, FolderTree, Layers, Target } from "lucide-react";
+import { Upload, BookOpen, Users, Activity, UserPlus, FolderTree, Layers, Target, Sparkles } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
       {/* Content Management */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Content Management</h2>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader>
               <CardTitle>Manage Domains</CardTitle>
@@ -184,6 +184,23 @@ export default function AdminDashboard() {
                 <Button className="w-full" variant="outline">
                   <Target className="mr-2 h-4 w-4" />
                   Manage Skills
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Flashcards</CardTitle>
+              <CardDescription>
+                Create and edit flashcards for skills
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin/flashcards">
+                <Button className="w-full" variant="outline">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Manage Flashcards
                 </Button>
               </Link>
             </CardContent>
