@@ -13,6 +13,8 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { Plus, Edit, Trash2, List, Eye } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Skill {
   id: string;
@@ -244,39 +246,57 @@ export default function FlashcardsManagementPage() {
 
     // Parse flashcards from textarea
     // Format: Q: question | A: answer | E: explanation (optional)
-    const lines = bulkFlashcards
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
+    // Supports both single-line and multi-line entries
 
     const flashcardsToCreate: FlashcardFormData[] = [];
     let currentOrder = parseInt(bulkStartOrder);
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+    // Split by "Q:" to separate flashcards (but keep the Q:)
+    const flashcardBlocks = bulkFlashcards.split(/(?=Q:)/);
 
-      // Simple Q&A format: "Q: question text | A: answer text | E: explanation (optional)"
-      if (line.startsWith('Q:')) {
-        const parts = line.split('|').map(p => p.trim());
-        const question = parts[0].substring(2).trim();
-        const answer = parts[1]?.startsWith('A:') ? parts[1].substring(2).trim() : '';
-        const explanation = parts[2]?.startsWith('E:') ? parts[2].substring(2).trim() : '';
+    for (const block of flashcardBlocks) {
+      const trimmedBlock = block.trim();
+      if (!trimmedBlock || !trimmedBlock.startsWith('Q:')) {
+        continue;
+      }
 
-        if (question && answer) {
-          flashcardsToCreate.push({
-            skillId: bulkSkillId,
-            question,
-            answer,
-            explanation,
-            order: currentOrder.toString(),
-          });
-          currentOrder++;
+      // Split by pipe to get Q, A, and E sections
+      const parts = trimmedBlock.split('|');
+
+      let question = '';
+      let answer = '';
+      let explanation = '';
+
+      for (const part of parts) {
+        const trimmedPart = part.trim();
+
+        if (trimmedPart.startsWith('Q:')) {
+          // Extract question, remove "Q:" prefix and preserve newlines
+          question = trimmedPart.substring(2).trim();
+        } else if (trimmedPart.startsWith('A:')) {
+          // Extract answer, remove "A:" prefix and preserve newlines
+          answer = trimmedPart.substring(2).trim();
+        } else if (trimmedPart.startsWith('E:')) {
+          // Extract explanation, remove "E:" prefix and preserve newlines
+          explanation = trimmedPart.substring(2).trim();
         }
+      }
+
+      // Only add if we have both question and answer
+      if (question && answer) {
+        flashcardsToCreate.push({
+          skillId: bulkSkillId,
+          question,
+          answer,
+          explanation,
+          order: currentOrder.toString(),
+        });
+        currentOrder++;
       }
     }
 
     if (flashcardsToCreate.length === 0) {
-      alert('No valid flashcards found. Use format: Q: question | A: answer | E: explanation');
+      alert('No valid flashcards found. Ensure each flashcard starts with "Q:" and includes "A:" separated by "|"');
       return;
     }
 
@@ -321,7 +341,7 @@ export default function FlashcardsManagementPage() {
               <DialogHeader>
                 <DialogTitle>Bulk Add Flashcards</DialogTitle>
                 <DialogDescription>
-                  Add multiple flashcards at once. Use format: Q: question | A: answer | E: explanation
+                  Add multiple flashcards at once. Use format: Q: question | A: answer | E: explanation. Markdown formatting is supported (use **bold**, - lists, etc.)
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleBulkSubmit}>
@@ -361,13 +381,13 @@ export default function FlashcardsManagementPage() {
                       id="bulkFlashcards"
                       value={bulkFlashcards}
                       onChange={(e) => setBulkFlashcards(e.target.value)}
-                      placeholder="Q: What is Azure? | A: Microsoft's cloud platform | E: Azure provides IaaS, PaaS, and SaaS&#10;Q: What is a VM? | A: Virtual Machine | E: A virtualized computer system"
+                      placeholder="Q: **What is Zero Trust?** |&#10;A: Security model with key principles:&#10;- Verify explicitly&#10;- Use least privilege&#10;- Assume breach |&#10;E: Modern approach to network security&#10;&#10;Q: What is a VM? | A: Virtual Machine | E: A virtualized computer system"
                       rows={15}
                       required
                       className="font-mono text-sm"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Format: Q: question | A: answer | E: explanation (explanation is optional)
+                      Format: Q: question | A: answer | E: explanation (explanation is optional). Supports multi-line entries and markdown formatting.
                     </p>
                   </div>
                 </div>
@@ -403,7 +423,7 @@ export default function FlashcardsManagementPage() {
               <DialogHeader>
                 <DialogTitle>{editingFlashcard ? "Edit Flashcard" : "Create New Flashcard"}</DialogTitle>
                 <DialogDescription>
-                  {editingFlashcard ? "Update flashcard details" : "Add a new flashcard to a skill"}
+                  {editingFlashcard ? "Update flashcard details. Markdown formatting is supported." : "Add a new flashcard to a skill. Markdown formatting is supported (use **bold**, - lists, etc.)"}
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit}>
@@ -431,7 +451,7 @@ export default function FlashcardsManagementPage() {
                       id="question"
                       value={formData.question}
                       onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                      placeholder="Enter the question..."
+                      placeholder="**Question:** What is Zero Trust?"
                       required
                       rows={3}
                     />
@@ -442,7 +462,7 @@ export default function FlashcardsManagementPage() {
                       id="answer"
                       value={formData.answer}
                       onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
-                      placeholder="Enter the answer..."
+                      placeholder="**Answer:**&#10;- Key point 1&#10;- Key point 2&#10;- Key point 3"
                       required
                       rows={3}
                     />
@@ -453,7 +473,7 @@ export default function FlashcardsManagementPage() {
                       id="explanation"
                       value={formData.explanation}
                       onChange={(e) => setFormData({ ...formData, explanation: e.target.value })}
-                      placeholder="Enter an explanation or additional context..."
+                      placeholder="Additional context or details (supports markdown)..."
                       rows={3}
                     />
                   </div>
@@ -567,7 +587,7 @@ export default function FlashcardsManagementPage() {
 
       {/* View Flashcard Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Flashcard Details</DialogTitle>
           </DialogHeader>
@@ -581,16 +601,28 @@ export default function FlashcardsManagementPage() {
               </div>
               <div>
                 <Label className="text-sm font-semibold">Question</Label>
-                <p className="mt-1 whitespace-pre-wrap">{viewingFlashcard.question}</p>
+                <div className="mt-1 prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {viewingFlashcard.question}
+                  </ReactMarkdown>
+                </div>
               </div>
               <div>
                 <Label className="text-sm font-semibold">Answer</Label>
-                <p className="mt-1 whitespace-pre-wrap">{viewingFlashcard.answer}</p>
+                <div className="mt-1 prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {viewingFlashcard.answer}
+                  </ReactMarkdown>
+                </div>
               </div>
               {viewingFlashcard.explanation && (
                 <div>
                   <Label className="text-sm font-semibold">Explanation</Label>
-                  <p className="mt-1 whitespace-pre-wrap">{viewingFlashcard.explanation}</p>
+                  <div className="mt-1 prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {viewingFlashcard.explanation}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               )}
               <div className="flex gap-4 text-sm text-muted-foreground">

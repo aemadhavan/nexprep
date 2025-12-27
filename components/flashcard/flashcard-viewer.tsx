@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HelpCircle, Lightbulb } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface FlashcardViewerProps {
   question: string;
@@ -74,9 +76,11 @@ export function FlashcardViewer({
 
               {/* Question */}
               <div className="flex-1 flex items-center justify-center">
-                <p className="text-2xl md:text-3xl font-medium text-center leading-relaxed">
-                  {question}
-                </p>
+                <div className="text-2xl md:text-3xl font-medium text-center leading-relaxed prose prose-lg dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-li:my-1">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {question}
+                  </ReactMarkdown>
+                </div>
               </div>
 
               {/* Metadata */}
@@ -130,9 +134,11 @@ export function FlashcardViewer({
 
               {/* Answer */}
               <div className="flex-1 space-y-6">
-                <p className="text-2xl md:text-3xl font-medium leading-relaxed">
-                  {answer}
-                </p>
+                <div className="text-2xl md:text-3xl font-medium leading-relaxed prose prose-lg dark:prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-li:my-1">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {answer}
+                  </ReactMarkdown>
+                </div>
 
                 {/* Explanation */}
                 {explanation && (
@@ -141,9 +147,11 @@ export function FlashcardViewer({
                       <Lightbulb className="h-4 w-4" />
                       Explanation
                     </h4>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {explanation}
-                    </p>
+                    <div className="text-sm leading-relaxed text-muted-foreground prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {explanation}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 )}
               </div>
