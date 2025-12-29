@@ -8,7 +8,6 @@ import { Navbar } from "@/components/layout/navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BookOpen, Play, ArrowLeft, ClipboardList } from "lucide-react";
 
 export default async function ExamPage({ params }: { params: Promise<{ examCode: string }> }) {
@@ -150,45 +149,66 @@ export default async function ExamPage({ params }: { params: Promise<{ examCode:
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Accordion type="multiple" className="w-full">
-                {examDomains.map((domain, domainIndex) => (
-                  <AccordionItem key={domain.id} value={`domain-${domain.id}`}>
-                    <AccordionTrigger className="text-left">
-                      <span className="font-semibold">
-                        {domainIndex + 1}. {domain.title}
-                      </span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="space-y-2 pl-4">
-                        {domain.categories.map((category, categoryIndex) => (
-                          <Accordion key={category.id} type="multiple">
-                            <AccordionItem value={`category-${category.id}`}>
-                              <AccordionTrigger className="text-left text-sm">
+              <div className="border-2 border-black dark:border-white rounded-lg overflow-hidden">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-black dark:bg-white text-white dark:text-black">
+                      <th className="px-4 py-3 text-left font-bold border-r border-black dark:border-white">Domain</th>
+                      <th className="px-4 py-3 text-left font-bold border-r border-black dark:border-white">Category</th>
+                      <th className="px-4 py-3 text-left font-bold">Skills</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {examDomains.map((domain, domainIndex) => {
+                      const domainSkillCount = domain.categories.reduce(
+                        (total, cat) => total + (cat.skills.length || 1),
+                        0
+                      );
+
+                      return domain.categories.map((category, categoryIndex) => {
+                        const categorySkillCount = category.skills.length || 1;
+                        const skills = category.skills.length > 0 ? category.skills : [null];
+
+                        return skills.map((skill, skillIndex) => (
+                          <tr
+                            key={skill ? `${domain.id}-${category.id}-${skill.id}` : `${domain.id}-${category.id}-empty`}
+                            className="border-b border-black dark:border-white last:border-b-0 hover:bg-muted/30 transition-colors"
+                          >
+                            {categoryIndex === 0 && skillIndex === 0 && (
+                              <td
+                                rowSpan={domainSkillCount}
+                                className="px-4 py-3 border-r border-black dark:border-white font-semibold text-base align-top"
+                              >
+                                {domainIndex + 1}. {domain.title}
+                              </td>
+                            )}
+                            {skillIndex === 0 && (
+                              <td
+                                rowSpan={categorySkillCount}
+                                className="px-4 py-3 border-r border-black dark:border-white text-sm font-medium align-top"
+                              >
                                 {domainIndex + 1}.{categoryIndex + 1} {category.title}
-                              </AccordionTrigger>
-                              <AccordionContent>
-                                <ul className="space-y-1 pl-4">
-                                  {category.skills.map((skill) => (
-                                    <li key={skill.id} className="text-sm text-muted-foreground flex items-start gap-2">
-                                      <span className="mt-1">•</span>
-                                      <span className="flex-1">
-                                        {skill.title}
-                                        <span className="ml-2 text-xs">
-                                          ({skill.flashcards.length} cards)
-                                        </span>
-                                      </span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+                              </td>
+                            )}
+                            <td className="px-4 py-3 text-sm">
+                              {skill ? (
+                                <div>
+                                  {skill.title}
+                                  <span className="ml-2 text-xs text-muted-foreground font-medium">
+                                    ({skill.flashcards.length} cards)
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground italic">No skills</span>
+                              )}
+                            </td>
+                          </tr>
+                        ));
+                      });
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </CardContent>
           </Card>
         </div>

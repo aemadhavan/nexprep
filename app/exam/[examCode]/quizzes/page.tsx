@@ -6,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { ArrowLeft, Clock, Trophy, CheckCircle, Play } from "lucide-react";
@@ -132,97 +131,112 @@ export default function QuizzesPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Accordion type="multiple" className="w-full">
-                      {Object.entries(groupedQuizzes).map(([domainTitle, categories], domainIdx) => (
-                        <AccordionItem key={domainTitle} value={`domain-${domainIdx}`}>
-                          <AccordionTrigger className="text-left">
-                            <span className="font-semibold">{domainTitle}</span>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="space-y-2 pl-4">
-                              {Object.entries(categories).map(([categoryTitle, skills]) => (
-                                <Accordion key={categoryTitle} type="multiple">
-                                  <AccordionItem value={`category-${categoryTitle}`}>
-                                    <AccordionTrigger className="text-left text-sm">
-                                      {categoryTitle}
-                                    </AccordionTrigger>
-                                    <AccordionContent>
-                                      <div className="space-y-4 pl-4">
-                                        {Object.entries(skills).map(([skillTitle, quizzes]) => (
-                                          <div key={skillTitle} className="space-y-3">
-                                            <div className="text-sm font-medium text-muted-foreground">
-                                              {skillTitle}
+                    <div className="border rounded-lg overflow-hidden">
+                      {/* Table Header */}
+                      <div className="grid grid-cols-[200px_200px_1fr] bg-muted/50 border-b font-semibold">
+                        <div className="px-4 py-3 border-r">Domain</div>
+                        <div className="px-4 py-3 border-r">Category</div>
+                        <div className="px-4 py-3">Skill & Quizzes</div>
+                      </div>
+                      {/* Table Body */}
+                      <div>
+                        {Object.entries(groupedQuizzes).flatMap(([domainTitle, categories]) => {
+                          let isFirstDomainRow = true;
+
+                          return Object.entries(categories).flatMap(([categoryTitle, skills]) => {
+                            let isFirstCategoryRow = true;
+
+                            return Object.entries(skills).flatMap(([skillTitle, quizzes]) => {
+                              let isFirstSkillRow = true;
+
+                              return quizzes.map((quiz) => {
+                                const showDomain = isFirstDomainRow;
+                                const showCategory = isFirstCategoryRow;
+                                const showSkill = isFirstSkillRow;
+                                isFirstDomainRow = false;
+                                isFirstCategoryRow = false;
+                                isFirstSkillRow = false;
+
+                                return (
+                                  <div
+                                    key={quiz.id}
+                                    className="grid grid-cols-[200px_200px_1fr] border-b last:border-b-0"
+                                  >
+                                    <div className={`px-4 py-3 border-r font-medium align-top ${showDomain ? '' : 'opacity-0 pointer-events-none'}`}>
+                                      {showDomain && domainTitle}
+                                    </div>
+                                    <div className={`px-4 py-3 border-r text-sm align-top ${showCategory ? '' : 'opacity-0 pointer-events-none'}`}>
+                                      {showCategory && categoryTitle}
+                                    </div>
+                                    <div className="px-4 py-3">
+                                      {showSkill && (
+                                        <div className="text-sm font-medium text-muted-foreground mb-3">
+                                          {skillTitle}
+                                        </div>
+                                      )}
+                                      <Card className="border-l-4 border-l-primary">
+                                        <CardHeader className="pb-3">
+                                          <div className="flex items-start justify-between gap-4">
+                                            <div className="flex-1 min-w-0">
+                                              <CardTitle className="text-base">{quiz.title}</CardTitle>
+                                              {quiz.description && (
+                                                <CardDescription className="mt-1">
+                                                  {quiz.description}
+                                                </CardDescription>
+                                              )}
                                             </div>
-                                            <div className="space-y-2">
-                                              {quizzes.map((quiz) => (
-                                                <Card key={quiz.id} className="border-l-4 border-l-primary">
-                                                  <CardHeader className="pb-3">
-                                                    <div className="flex items-start justify-between">
-                                                      <div className="flex-1">
-                                                        <CardTitle className="text-base">{quiz.title}</CardTitle>
-                                                        {quiz.description && (
-                                                          <CardDescription className="mt-1">
-                                                            {quiz.description}
-                                                          </CardDescription>
-                                                        )}
-                                                      </div>
-                                                      {quiz.userStats && (
-                                                        <div className="ml-4">
-                                                          {quiz.userStats.passed ? (
-                                                            <Badge className="bg-green-600">
-                                                              <CheckCircle className="mr-1 h-3 w-3" />
-                                                              Passed
-                                                            </Badge>
-                                                          ) : (
-                                                            <Badge variant="secondary">
-                                                              Best: {quiz.userStats.bestScore}%
-                                                            </Badge>
-                                                          )}
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  </CardHeader>
-                                                  <CardContent>
-                                                    <div className="flex items-center justify-between">
-                                                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                                        <div className="flex items-center gap-1">
-                                                          <Trophy className="h-4 w-4" />
-                                                          {quiz.questionCount} questions
-                                                        </div>
-                                                        {quiz.timeLimit && (
-                                                          <div className="flex items-center gap-1">
-                                                            <Clock className="h-4 w-4" />
-                                                            {quiz.timeLimit} min
-                                                          </div>
-                                                        )}
-                                                        <div>Pass: {quiz.passingScore}%</div>
-                                                        {quiz.userStats && (
-                                                          <div>Attempts: {quiz.userStats.attempts}</div>
-                                                        )}
-                                                      </div>
-                                                      <Link href={`/exam/${examCode}/quizzes/${quiz.id}/take`}>
-                                                        <Button size="sm">
-                                                          <Play className="mr-2 h-4 w-4" />
-                                                          {quiz.userStats ? "Retake Quiz" : "Start Quiz"}
-                                                        </Button>
-                                                      </Link>
-                                                    </div>
-                                                  </CardContent>
-                                                </Card>
-                                              ))}
-                                            </div>
+                                            {quiz.userStats && (
+                                              <div className="shrink-0">
+                                                {quiz.userStats.passed ? (
+                                                  <Badge className="bg-green-600">
+                                                    <CheckCircle className="mr-1 h-3 w-3" />
+                                                    Passed
+                                                  </Badge>
+                                                ) : (
+                                                  <Badge variant="secondary">
+                                                    Best: {quiz.userStats.bestScore}%
+                                                  </Badge>
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
-                                        ))}
-                                      </div>
-                                    </AccordionContent>
-                                  </AccordionItem>
-                                </Accordion>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
+                                        </CardHeader>
+                                        <CardContent>
+                                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                                              <div className="flex items-center gap-1">
+                                                <Trophy className="h-4 w-4" />
+                                                {quiz.questionCount} questions
+                                              </div>
+                                              {quiz.timeLimit && (
+                                                <div className="flex items-center gap-1">
+                                                  <Clock className="h-4 w-4" />
+                                                  {quiz.timeLimit} min
+                                                </div>
+                                              )}
+                                              <div>Pass: {quiz.passingScore}%</div>
+                                              {quiz.userStats && (
+                                                <div>Attempts: {quiz.userStats.attempts}</div>
+                                              )}
+                                            </div>
+                                            <Link href={`/exam/${examCode}/quizzes/${quiz.id}/take`}>
+                                              <Button size="sm" className="w-full sm:w-auto">
+                                                <Play className="mr-2 h-4 w-4" />
+                                                {quiz.userStats ? "Retake Quiz" : "Start Quiz"}
+                                              </Button>
+                                            </Link>
+                                          </div>
+                                        </CardContent>
+                                      </Card>
+                                    </div>
+                                  </div>
+                                );
+                              });
+                            });
+                          });
+                        })}
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               )}
