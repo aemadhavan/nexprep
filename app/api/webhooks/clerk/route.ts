@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Create user in database
+      // Create or update user in database (UPSERT)
       const [createdUser] = await db
         .insert(users)
         .values({
@@ -76,6 +76,14 @@ export async function POST(req: NextRequest) {
           email: email,
           name: `${first_name || ""} ${last_name || ""}`.trim() || email,
           role: "user",
+        })
+        .onConflictDoUpdate({
+          target: users.email,
+          set: {
+            clerkId: id,
+            name: `${first_name || ""} ${last_name || ""}`.trim() || email,
+            updatedAt: new Date(),
+          },
         })
         .returning();
 
@@ -99,12 +107,12 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: "User created and AB-900 access granted",
+        message: "User authenticated and AB-900 access verified",
       });
     } catch (error: any) {
-      console.error("Error creating user:", error);
+      console.error("Error processing user:", error);
       return NextResponse.json(
-        { error: "Failed to create user", details: error.message },
+        { error: "Failed to process user", details: error.message },
         { status: 500 }
       );
     }
