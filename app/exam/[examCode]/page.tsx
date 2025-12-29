@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { BookOpen, Play, ArrowLeft } from "lucide-react";
+import { BookOpen, Play, ArrowLeft, ClipboardList } from "lucide-react";
 
 export default async function ExamPage({ params }: { params: Promise<{ examCode: string }> }) {
   const { examCode } = await params;
@@ -124,11 +124,17 @@ export default async function ExamPage({ params }: { params: Promise<{ examCode:
                   <span>{totalFlashcards} Flashcards</span>
                 </div>
               </div>
-              <div className="mt-4">
+              <div className="mt-4 flex gap-3">
                 <Link href={`/exam/${examCode}/flashcards`}>
                   <Button size="lg">
                     <Play className="mr-2 h-5 w-5" />
                     Start Studying
+                  </Button>
+                </Link>
+                <Link href={`/exam/${examCode}/quizzes`}>
+                  <Button size="lg" variant="outline">
+                    <ClipboardList className="mr-2 h-5 w-5" />
+                    Take Quizzes
                   </Button>
                 </Link>
               </div>

@@ -8,6 +8,13 @@
       "when": 1766741955128,
       "tag": "0000_long_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766874410349,
+      "tag": "0001_red_cerise",
+      "breakpoints": true
     }
   ]
 }

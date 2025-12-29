@@ -6,10 +6,39 @@ export const uploadFlashcardSchema = z.object({
   explanation: z.string().optional(),
 });
 
+// Quiz option schema
+export const uploadQuizOptionSchema = z.object({
+  optionText: z.string().min(1, "Option text is required"),
+  isCorrect: z.boolean(),
+  order: z.number().int().positive(),
+});
+
+// Quiz question schema
+export const uploadQuizQuestionSchema = z.object({
+  questionText: z.string().min(1, "Question text is required"),
+  questionType: z.enum(["single", "multiple"], {
+    errorMap: () => ({ message: "Question type must be 'single' or 'multiple'" }),
+  }),
+  explanation: z.string().optional(),
+  order: z.number().int().positive(),
+  options: z.array(uploadQuizOptionSchema).min(2, "At least 2 options required per question"),
+});
+
+// Quiz schema
+export const uploadQuizSchema = z.object({
+  title: z.string().min(1, "Quiz title is required"),
+  description: z.string().optional(),
+  timeLimit: z.number().int().positive().optional(), // in minutes
+  passingScore: z.number().int().min(0).max(100).default(70),
+  order: z.number().int().positive(),
+  questions: z.array(uploadQuizQuestionSchema).min(1, "At least 1 question is required per quiz"),
+});
+
 export const uploadSkillSchema = z.object({
   title: z.string().min(1, "Skill title is required"),
   order: z.number().int().positive(),
   flashcards: z.array(uploadFlashcardSchema).min(1, "At least one flashcard is required per skill"),
+  quizzes: z.array(uploadQuizSchema).optional().default([]),
 });
 
 export const uploadCategorySchema = z.object({
@@ -41,6 +70,9 @@ export const examUploadPayloadSchema = z.object({
 });
 
 export type UploadFlashcardInput = z.infer<typeof uploadFlashcardSchema>;
+export type UploadQuizOptionInput = z.infer<typeof uploadQuizOptionSchema>;
+export type UploadQuizQuestionInput = z.infer<typeof uploadQuizQuestionSchema>;
+export type UploadQuizInput = z.infer<typeof uploadQuizSchema>;
 export type UploadSkillInput = z.infer<typeof uploadSkillSchema>;
 export type UploadCategoryInput = z.infer<typeof uploadCategorySchema>;
 export type UploadDomainInput = z.infer<typeof uploadDomainSchema>;

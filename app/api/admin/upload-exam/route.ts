@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/db";
-import { exams, domains, categories, skills, flashcards } from "@/db/schema";
+import { exams, domains, categories, skills, flashcards, quizzes, quizQuestions, quizOptions } from "@/db/schema";
 import { examUploadPayloadSchema } from "@/lib/schemas/upload-schema";
 
 export async function POST(req: NextRequest) {
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     // Create exam and all related content in a transaction-like sequence
     let totalFlashcards = 0;
+    let totalQuizzes = 0;
 
     // 1. Create exam
     const [createdExam] = await db
@@ -106,6 +107,50 @@ export async function POST(req: NextRequest) {
             await db.insert(flashcards).values(flashcardValues);
             totalFlashcards += flashcardValues.length;
           }
+
+          // 6. Process quizzes
+          if (skillData.quizzes && skillData.quizzes.length > 0) {
+            for (const quizData of skillData.quizzes) {
+              // Create quiz
+              const [createdQuiz] = await db
+                .insert(quizzes)
+                .values({
+                  skillId: createdSkill.id,
+                  title: quizData.title,
+                  description: quizData.description || null,
+                  timeLimit: quizData.timeLimit || null,
+                  passingScore: quizData.passingScore,
+                  order: quizData.order,
+                })
+                .returning();
+
+              totalQuizzes++;
+
+              // Process questions
+              for (const questionData of quizData.questions) {
+                const [createdQuestion] = await db
+                  .insert(quizQuestions)
+                  .values({
+                    quizId: createdQuiz.id,
+                    questionText: questionData.questionText,
+                    explanation: questionData.explanation || null,
+                    order: questionData.order,
+                    questionType: questionData.questionType,
+                  })
+                  .returning();
+
+                // Process options
+                const optionValues = questionData.options.map((opt) => ({
+                  questionId: createdQuestion.id,
+                  optionText: opt.optionText,
+                  isCorrect: opt.isCorrect,
+                  order: opt.order,
+                }));
+
+                await db.insert(quizOptions).values(optionValues);
+              }
+            }
+          }
         }
       }
     }
@@ -121,6 +166,7 @@ export async function POST(req: NextRequest) {
       stats: {
         totalDomains: data.domains.length,
         totalFlashcards,
+        totalQuizzes,
       },
     });
   } catch (error: any) {

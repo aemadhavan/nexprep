@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/db";
-import { exams, flashcards, users } from "@/db/schema";
+import { exams, flashcards, users, quizzes } from "@/db/schema";
 import { count } from "drizzle-orm";
 
 export async function GET() {
@@ -26,10 +26,15 @@ export async function GET() {
     const usersCountResult = await db.select({ count: count() }).from(users);
     const totalUsers = usersCountResult[0]?.count || 0;
 
+    // Get total quizzes
+    const quizzesCountResult = await db.select({ count: count() }).from(quizzes);
+    const totalQuizzes = quizzesCountResult[0]?.count || 0;
+
     return NextResponse.json({
       totalExams,
       totalFlashcards,
       totalUsers,
+      totalQuizzes,
     });
   } catch (error: any) {
     console.error("Error fetching admin stats:", error);

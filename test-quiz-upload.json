@@ -1,0 +1,97 @@
+{
+  "exam": {
+    "code": "TEST-001",
+    "name": "Test Exam with Quizzes",
+    "provider": "Microsoft",
+    "description": "A test exam to verify quiz upload functionality",
+    "phase": 1,
+    "price": 0
+  },
+  "domains": [
+    {
+      "title": "Test Domain",
+      "order": 1,
+      "categories": [
+        {
+          "title": "Test Category",
+          "order": 1,
+          "skills": [
+            {
+              "title": "Test Skill",
+              "order": 1,
+              "flashcards": [
+                {
+                  "question": "What is a test question?",
+                  "answer": "This is a test answer",
+                  "explanation": "This is optional"
+                }
+              ],
+              "quizzes": [
+                {
+                  "title": "Sample Quiz",
+                  "description": "A quiz to test the upload system",
+                  "timeLimit": 10,
+                  "passingScore": 70,
+                  "order": 1,
+                  "questions": [
+                    {
+                      "questionText": "Which of the following are programming languages?",
+                      "questionType": "multiple",
+                      "explanation": "JavaScript, Python, and Java are all programming languages.",
+                      "order": 1,
+                      "options": [
+                        {
+                          "optionText": "JavaScript",
+                          "isCorrect": true,
+                          "order": 1
+                        },
+                        {
+                          "optionText": "HTML",
+                          "isCorrect": false,
+                          "order": 2
+                        },
+                        {
+                          "optionText": "Python",
+                          "isCorrect": true,
+                          "order": 3
+                        },
+                        {
+                          "optionText": "CSS",
+                          "isCorrect": false,
+                          "order": 4
+                        }
+                      ]
+                    },
+                    {
+                      "questionText": "What does SQL stand for?",
+                      "questionType": "single",
+                      "explanation": "SQL stands for Structured Query Language.",
+                      "order": 2,
+                      "options": [
+                        {
+                          "optionText": "Structured Query Language",
+                          "isCorrect": true,
+                          "order": 1
+                        },
+                        {
+                          "optionText": "Simple Question Language",
+                          "isCorrect": false,
+                          "order": 2
+                        },
+                        {
+                          "optionText": "Standard Query Language",
+                          "isCorrect": false,
+                          "order": 3
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

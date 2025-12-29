@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, BookOpen, Users, Activity, UserPlus, FolderTree, Layers, Target, Sparkles } from "lucide-react";
+import { Upload, BookOpen, Users, Activity, UserPlus, FolderTree, Layers, Target, Sparkles, ClipboardList } from "lucide-react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
 
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Exams</CardTitle>
@@ -63,6 +63,16 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.totalFlashcards || 0}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Quizzes</CardTitle>
+            <ClipboardList className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.totalQuizzes || 0}</div>
           </CardContent>
         </Card>
 
@@ -137,7 +147,7 @@ export default function AdminDashboard() {
       {/* Content Management */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Content Management</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader>
               <CardTitle>Manage Domains</CardTitle>
@@ -201,6 +211,23 @@ export default function AdminDashboard() {
                 <Button className="w-full" variant="outline">
                   <Sparkles className="mr-2 h-4 w-4" />
                   Manage Flashcards
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Quizzes</CardTitle>
+              <CardDescription>
+                View and manage quizzes for skills
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin/quizzes">
+                <Button className="w-full" variant="outline">
+                  <ClipboardList className="mr-2 h-4 w-4" />
+                  Manage Quizzes
                 </Button>
               </Link>
             </CardContent>

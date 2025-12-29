@@ -66,7 +66,7 @@ export default function UploadPage() {
       }
 
       toast.success("Exam uploaded successfully!", {
-        description: `${data.exam.name} (${data.exam.code}) with ${data.stats.totalFlashcards} flashcards`,
+        description: `${data.exam.name} (${data.exam.code}) with ${data.stats.totalFlashcards} flashcards and ${data.stats.totalQuizzes} quizzes`,
       });
 
       // Reset form
@@ -111,8 +111,19 @@ export default function UploadPage() {
         ),
       0
     ) || 0;
+    const quizCount = validationPreview.domains?.reduce(
+      (acc: number, d: any) =>
+        acc +
+        d.categories?.reduce(
+          (a: number, c: any) =>
+            a +
+            c.skills?.reduce((s: number, sk: any) => s + (sk.quizzes?.length || 0), 0),
+          0
+        ),
+      0
+    ) || 0;
 
-    return { domainCount, categoryCount, skillCount, flashcardCount };
+    return { domainCount, categoryCount, skillCount, flashcardCount, quizCount };
   };
 
   const stats = getPreviewStats();
@@ -174,7 +185,7 @@ export default function UploadPage() {
               {stats && (
                 <div className="space-y-2">
                   <h4 className="font-semibold">Content Summary:</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <div className="bg-background rounded p-3 text-center">
                       <div className="text-2xl font-bold">{stats.domainCount}</div>
                       <div className="text-xs text-muted-foreground">Domains</div>
@@ -190,6 +201,10 @@ export default function UploadPage() {
                     <div className="bg-background rounded p-3 text-center">
                       <div className="text-2xl font-bold text-primary">{stats.flashcardCount}</div>
                       <div className="text-xs text-muted-foreground">Flashcards</div>
+                    </div>
+                    <div className="bg-background rounded p-3 text-center">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.quizCount}</div>
+                      <div className="text-xs text-muted-foreground">Quizzes</div>
                     </div>
                   </div>
                 </div>
@@ -257,6 +272,27 @@ export default function UploadPage() {
                   "question": "Question text?",
                   "answer": "Answer text",
                   "explanation": "Optional explanation"
+                }
+              ],
+              "quizzes": [
+                {
+                  "title": "Practice Quiz",
+                  "description": "Test your knowledge",
+                  "timeLimit": 15,
+                  "passingScore": 70,
+                  "order": 1,
+                  "questions": [
+                    {
+                      "questionText": "Which are correct?",
+                      "questionType": "multiple",
+                      "explanation": "Explanation here",
+                      "order": 1,
+                      "options": [
+                        { "optionText": "Option A", "isCorrect": true, "order": 1 },
+                        { "optionText": "Option B", "isCorrect": false, "order": 2 }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
