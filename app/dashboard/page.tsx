@@ -45,20 +45,32 @@ export default async function DashboardPage() {
       })
       .returning();
 
-    dbUser = createdUser;
-
-    // Auto-grant AB-900
+    // Auto-grant AB-900 if not already granted
     const ab900Exam = await db.query.exams.findFirst({
       where: eq(exams.code, "AB-900"),
     });
 
     if (ab900Exam) {
-      await db.insert(userExamAccess).values({
-        userId: dbUser.id,
-        examId: ab900Exam.id,
-        grantType: "auto",
+      // Check if user already has access to AB-900
+      const existingAccess = await db.query.userExamAccess.findFirst({
+        where: (access, { and, eq }) =>
+          and(
+            eq(access.userId, createdUser.id),
+            eq(access.examId, ab900Exam.id)
+          ),
       });
+
+      // Only grant if they don't already have access
+      if (!existingAccess) {
+        await db.insert(userExamAccess).values({
+          userId: createdUser.id,
+          examId: ab900Exam.id,
+          grantType: "auto",
+        });
+      }
     }
+
+    dbUser = createdUser;
   }
 
   // Get user's accessible exams

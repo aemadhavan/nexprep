@@ -92,15 +92,27 @@ export async function POST(req: NextRequest) {
         where: eq(exams.code, "AB-900"),
       });
 
-      // Auto-grant AB-900 access if exam exists
+      // Auto-grant AB-900 access if exam exists and user doesn't already have access
       if (ab900Exam) {
-        await db.insert(userExamAccess).values({
-          userId: createdUser.id,
-          examId: ab900Exam.id,
-          grantType: "auto",
+        const existingAccess = await db.query.userExamAccess.findFirst({
+          where: (access, { and, eq }) =>
+            and(
+              eq(access.userId, createdUser.id),
+              eq(access.examId, ab900Exam.id)
+            ),
         });
 
-        console.log(`✅ Auto-granted AB-900 access to user: ${email}`);
+        if (!existingAccess) {
+          await db.insert(userExamAccess).values({
+            userId: createdUser.id,
+            examId: ab900Exam.id,
+            grantType: "auto",
+          });
+
+          console.log(`✅ Auto-granted AB-900 access to user: ${email}`);
+        } else {
+          console.log(`ℹ️  User ${email} already has AB-900 access`);
+        }
       } else {
         console.log(`⚠️  AB-900 exam not found, skipping auto-grant for: ${email}`);
       }
