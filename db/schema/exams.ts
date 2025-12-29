@@ -49,6 +49,37 @@ export const flashcards = pgTable("flashcards", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const quizzes = pgTable("quizzes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  skillId: uuid("skill_id").notNull().references(() => skills.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  description: text("description"),
+  timeLimit: integer("time_limit"), // in minutes, null = no limit
+  passingScore: integer("passing_score").notNull().default(70), // percentage
+  order: integer("order").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const quizQuestions = pgTable("quiz_questions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  quizId: uuid("quiz_id").notNull().references(() => quizzes.id, { onDelete: "cascade" }),
+  questionText: text("question_text").notNull(),
+  explanation: text("explanation"), // shown after answering
+  order: integer("order").notNull(),
+  questionType: text("question_type").notNull(), // "single" or "multiple"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const quizOptions = pgTable("quiz_options", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  questionId: uuid("question_id").notNull().references(() => quizQuestions.id, { onDelete: "cascade" }),
+  optionText: text("option_text").notNull(),
+  isCorrect: boolean("is_correct").notNull().default(false),
+  order: integer("order").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const examsRelations = relations(exams, ({ many }) => ({
   domains: many(domains),
@@ -76,12 +107,36 @@ export const skillsRelations = relations(skills, ({ one, many }) => ({
     references: [categories.id],
   }),
   flashcards: many(flashcards),
+  quizzes: many(quizzes),
 }));
 
 export const flashcardsRelations = relations(flashcards, ({ one }) => ({
   skill: one(skills, {
     fields: [flashcards.skillId],
     references: [skills.id],
+  }),
+}));
+
+export const quizzesRelations = relations(quizzes, ({ one, many }) => ({
+  skill: one(skills, {
+    fields: [quizzes.skillId],
+    references: [skills.id],
+  }),
+  questions: many(quizQuestions),
+}));
+
+export const quizQuestionsRelations = relations(quizQuestions, ({ one, many }) => ({
+  quiz: one(quizzes, {
+    fields: [quizQuestions.quizId],
+    references: [quizzes.id],
+  }),
+  options: many(quizOptions),
+}));
+
+export const quizOptionsRelations = relations(quizOptions, ({ one }) => ({
+  question: one(quizQuestions, {
+    fields: [quizOptions.questionId],
+    references: [quizQuestions.id],
   }),
 }));
 

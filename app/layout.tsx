@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { Toaster as CustomToaster } from "@/components/ui/toaster";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
           <Providers>
             {children}
             <Toaster position="top-center" richColors />
+            <CustomToaster />
           </Providers>
         </body>
       </html>
