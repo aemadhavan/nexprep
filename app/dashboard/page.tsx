@@ -22,15 +22,26 @@ export default async function DashboardPage() {
     where: eq(users.clerkId, clerkUser.id),
   });
 
-  // If user doesn't exist in DB yet (webhook might not have fired), create them
+  // If user doesn't exist in DB yet (webhook might not have fired), create or update them
   if (!dbUser) {
+    const email = clerkUser.emailAddresses[0]?.emailAddress || "";
+    const name = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || email || "User";
+
     const [createdUser] = await db
       .insert(users)
       .values({
         clerkId: clerkUser.id,
-        email: clerkUser.emailAddresses[0]?.emailAddress || "",
-        name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || clerkUser.emailAddresses[0]?.emailAddress || "User",
+        email: email,
+        name: name,
         role: "user",
+      })
+      .onConflictDoUpdate({
+        target: users.email,
+        set: {
+          clerkId: clerkUser.id,
+          name: name,
+          updatedAt: new Date(),
+        },
       })
       .returning();
 
