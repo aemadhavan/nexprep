@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NexPrep - AI Certification Exam Preparation",
-  description: "Prepare for Microsoft, AWS, and Google Cloud AI certifications with AI-powered flashcards and quizzes",
+  title: "NexPrep - AI Certification Prep & Practice Tests",
+  description: "Streamline your prep for Microsoft, AWS, and Google - AI certifications. Our intelligent microlearning and adaptive practice tests ensure you're exam-ready.",
 };
 
 export default function RootLayout({
