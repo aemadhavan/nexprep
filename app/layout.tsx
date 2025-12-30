@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { Toaster as CustomToaster } from "@/components/ui/toaster";
 import { Providers } from "./providers";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,6 +34,18 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           suppressHydrationWarning
         >
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-SYSZQQRBC6"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-SYSZQQRBC6');
+            `}
+          </Script>
           <Providers>
             {children}
             <Toaster position="top-center" richColors />
