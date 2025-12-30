@@ -64,7 +64,7 @@ export function ConsentBanner() {
               We use cookies to enhance your browsing experience, serve personalized ads or content,
               and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.{" "}
               <a
-                href="/privacy-policy"
+                href="/cookie-policy"
                 className="underline hover:text-primary"
                 target="_blank"
                 rel="noopener noreferrer"
