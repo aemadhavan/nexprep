@@ -10,18 +10,20 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Search } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+interface Exam {
+  id: string;
+  code: string;
+  name: string;
+}
 
 interface Domain {
   id: string;
   examId: string;
   title: string;
-  exam: {
-    id: string;
-    code: string;
-    name: string;
-  };
+  exam: Exam;
 }
 
 interface Category {
@@ -48,6 +50,9 @@ export default function CategoriesManagementPage() {
     title: "",
     order: "1",
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDomain, setSelectedDomain] = useState("");
+  const [selectedExam, setSelectedExam] = useState("");
 
   // Fetch domains for dropdown
   const { data: domains } = useQuery({
@@ -167,6 +172,20 @@ export default function CategoriesManagementPage() {
     }
   };
 
+  // Derive unique exams from domains
+  const uniqueExams = Array.from(new Set(domains?.map(d => JSON.stringify(d.exam)))).map(e => JSON.parse(e) as Exam);
+
+  const filteredCategories = categories?.filter((category) => {
+    const matchesSearch = category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.domain.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.domain.exam.code.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesDomain = selectedDomain ? category.domainId === selectedDomain : true;
+    const matchesExam = selectedExam ? category.domain.examId === selectedExam : true;
+
+    return matchesSearch && matchesDomain && matchesExam;
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -279,6 +298,58 @@ export default function CategoriesManagementPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <Label htmlFor="search" className="sr-only">Search</Label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="search"
+                  placeholder="Search categories..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="w-full md:w-[200px]">
+              <Label htmlFor="filter-exam" className="sr-only">Filter by Exam</Label>
+              <select
+                id="filter-exam"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                value={selectedExam}
+                onChange={(e) => {
+                  setSelectedExam(e.target.value);
+                  setSelectedDomain(""); // Reset domain when exam changes
+                }}
+              >
+                <option value="">All Exams</option>
+                {uniqueExams?.map((exam) => (
+                  <option key={exam.id} value={exam.id}>
+                    {exam.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full md:w-[200px]">
+              <Label htmlFor="filter-domain" className="sr-only">Filter by Domain</Label>
+              <select
+                id="filter-domain"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                value={selectedDomain}
+                onChange={(e) => setSelectedDomain(e.target.value)}
+              >
+                <option value="">All Domains</option>
+                {domains
+                  ?.filter(d => !selectedExam || d.examId === selectedExam)
+                  .map((domain) => (
+                    <option key={domain.id} value={domain.id}>
+                      {domain.title}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -290,14 +361,14 @@ export default function CategoriesManagementPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories?.length === 0 ? (
+              {filteredCategories?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                     No categories found. Click "Add Category" to create one.
                   </TableCell>
                 </TableRow>
               ) : (
-                categories?.map((category) => (
+                filteredCategories?.map((category) => (
                   <TableRow key={category.id}>
                     <TableCell className="font-medium">{category.order}</TableCell>
                     <TableCell>{category.title}</TableCell>

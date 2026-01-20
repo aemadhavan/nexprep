@@ -118,18 +118,10 @@ export default async function ExamPage({ params }: { params: Promise<{ examCode:
                   <BookOpen className="h-4 w-4 text-muted-foreground" />
                   <span>{examDomains.length} Domains</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
-                  <span>{totalFlashcards} Flashcards</span>
-                </div>
+
               </div>
               <div className="mt-4 flex gap-3">
-                <Link href={`/exam/${examCode}/flashcards`}>
-                  <Button size="lg">
-                    <Play className="mr-2 h-5 w-5" />
-                    Start Studying
-                  </Button>
-                </Link>
+
                 <Link href={`/exam/${examCode}/quizzes`}>
                   <Button size="lg" variant="outline">
                     <ClipboardList className="mr-2 h-5 w-5" />
@@ -149,7 +141,7 @@ export default async function ExamPage({ params }: { params: Promise<{ examCode:
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="border-2 border-black dark:border-white rounded-lg overflow-hidden">
+              <div className="hidden md:block border-2 border-black dark:border-white rounded-lg overflow-hidden">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-black dark:bg-white text-white dark:text-black">
@@ -194,9 +186,7 @@ export default async function ExamPage({ params }: { params: Promise<{ examCode:
                               {skill ? (
                                 <div>
                                   {skill.title}
-                                  <span className="ml-2 text-xs text-muted-foreground font-medium">
-                                    ({skill.flashcards.length} cards)
-                                  </span>
+
                                 </div>
                               ) : (
                                 <span className="text-muted-foreground italic">No skills</span>
@@ -208,6 +198,38 @@ export default async function ExamPage({ params }: { params: Promise<{ examCode:
                     })}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile View */}
+              <div className="md:hidden space-y-4">
+                {examDomains.map((domain, domainIndex) => (
+                  <div key={domain.id} className="border-2 border-black dark:border-white rounded-lg overflow-hidden">
+                    <div className="bg-black dark:bg-white text-white dark:text-black px-4 py-3 font-bold">
+                      {domainIndex + 1}. {domain.title}
+                    </div>
+                    <div className="divide-y-2 divide-black dark:divide-white">
+                      {domain.categories.map((category, categoryIndex) => (
+                        <div key={category.id} className="bg-background">
+                          <div className="px-4 py-2 font-medium bg-muted/30 border-b border-black/10 dark:border-white/10">
+                            {domainIndex + 1}.{categoryIndex + 1} {category.title}
+                          </div>
+                          <div className="px-4 py-2 space-y-2">
+                            {category.skills.length > 0 ? (
+                              category.skills.map((skill) => (
+                                <div key={skill.id} className="text-sm pl-2 border-l-2 border-muted-foreground/30">
+                                  <span>{skill.title}</span>
+
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-sm text-muted-foreground italic pl-2">No skills</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

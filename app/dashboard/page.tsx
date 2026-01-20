@@ -139,7 +139,7 @@ export default async function DashboardPage() {
                     <CardFooter>
                       <Link href={`/exam/${exam.code}`} className="w-full">
                         <Button className="w-full">
-                          Start Studying
+                          Practice Test
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>

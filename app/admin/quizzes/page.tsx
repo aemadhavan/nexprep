@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { ArrowLeft, Trash2, Clock, Trophy, Plus, List, X, Pencil } from "lucide-react";
+import { ArrowLeft, Trash2, Clock, Trophy, Plus, List, X, Pencil, Search } from "lucide-react";
 import { toast } from "sonner";
 
 interface Skill {
@@ -92,6 +92,10 @@ export default function QuizzesPage() {
   const [bulkSkillId, setBulkSkillId] = useState("");
   const [bulkQuizzes, setBulkQuizzes] = useState("");
   const [bulkStartOrder, setBulkStartOrder] = useState("1");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDomain, setSelectedDomain] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedExam, setSelectedExam] = useState("");
 
   // Fetch skills for dropdown
   const { data: skills } = useQuery({
@@ -123,6 +127,51 @@ export default function QuizzesPage() {
       if (!response.ok) throw new Error("Failed to fetch quizzes");
       return response.json() as Promise<{ quizzes: Quiz[] }>;
     },
+  });
+
+  // Derive unique exams and domains for filters
+  // We use skills to get the full hierarchy of available options
+  const uniqueExams = Array.from(new Set(skills?.map(s => JSON.stringify(s.category.domain.exam)))).map(e => JSON.parse(e));
+
+  // Filter domains based on selected exam if any
+  const filteredDomains = skills?.reduce((acc, skill) => {
+    const domain = skill.category.domain;
+    if (!selectedExam || domain.exam.id === selectedExam) {
+      if (!acc.find((d: any) => d.id === domain.id)) {
+        acc.push(domain);
+      }
+    }
+    return acc;
+  }, [] as any[]);
+
+  // Filter categories based on selected exam/domain if any
+  const filteredCategories = skills?.reduce((acc, skill) => {
+    const category = skill.category;
+    const domain = category.domain;
+
+    const matchesExam = !selectedExam || domain.exam.id === selectedExam;
+    const matchesDomain = !selectedDomain || domain.id === selectedDomain;
+
+    if (matchesExam && matchesDomain) {
+      if (!acc.find((c: any) => c.id === category.id)) {
+        acc.push(category);
+      }
+    }
+    return acc;
+  }, [] as any[]);
+
+  const filteredQuizzes = data?.quizzes.filter((quiz) => {
+    const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.skill.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.category.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.domain.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quiz.exam.code.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesExam = selectedExam ? quiz.exam.id === selectedExam : true;
+    const matchesDomain = selectedDomain ? quiz.domain.id === selectedDomain : true;
+    const matchesCategory = selectedCategory ? quiz.category.id === selectedCategory : true;
+
+    return matchesSearch && matchesExam && matchesDomain && matchesCategory;
   });
 
   const createMutation = useMutation({
@@ -805,118 +854,162 @@ export default function QuizzesPage() {
         </div>
       </div>
 
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <LoadingSpinner size="lg" text="Loading quizzes..." />
-        </div>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>All Quizzes</CardTitle>
+          <CardDescription>
+            {data?.quizzes.length || 0} quiz(zes) configured
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-1">
+              <Label htmlFor="search" className="sr-only">Search</Label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="search"
+                  placeholder="Search quizzes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            <div className="w-full md:w-[200px]">
+              <Label htmlFor="filter-exam" className="sr-only">Filter by Exam</Label>
+              <select
+                id="filter-exam"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                value={selectedExam}
+                onChange={(e) => {
+                  setSelectedExam(e.target.value);
+                  setSelectedDomain(""); // Reset domain when exam changes
+                  setSelectedCategory(""); // Reset category when exam changes
+                }}
+              >
+                <option value="">All Exams</option>
+                {uniqueExams?.map((exam: any) => (
+                  <option key={exam.id} value={exam.id}>
+                    {exam.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full md:w-[200px]">
+              <Label htmlFor="filter-domain" className="sr-only">Filter by Domain</Label>
+              <select
+                id="filter-domain"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                value={selectedDomain}
+                onChange={(e) => {
+                  setSelectedDomain(e.target.value);
+                  setSelectedCategory(""); // Reset category when domain changes
+                }}
+              >
+                <option value="">All Domains</option>
+                {filteredDomains?.map((domain: any) => (
+                  <option key={domain.id} value={domain.id}>
+                    {domain.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full md:w-[200px]">
+              <Label htmlFor="filter-category" className="sr-only">Filter by Category</Label>
+              <select
+                id="filter-category"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option value="">All Categories</option>
+                {filteredCategories?.map((category: any) => (
+                  <option key={category.id} value={category.id}>
+                    {category.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Questions</TableHead>
+                <TableHead>Skill</TableHead>
+                <TableHead>Domain</TableHead>
+                <TableHead>Exam</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredQuizzes?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                    No quizzes found. Click "Add Quiz" to create one.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredQuizzes?.map((quiz) => (
+                  <TableRow key={quiz.id}>
+                    <TableCell className="font-medium">{quiz.order}</TableCell>
+                    <TableCell>
+                      <div className="font-medium">{quiz.title}</div>
+                      {quiz.description && (
+                        <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                          {quiz.description}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        {quiz.questionCount} {quiz.questionCount === 1 ? 'question' : 'questions'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{quiz.skill.title}</TableCell>
+                    <TableCell>{quiz.domain.title}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{quiz.exam.code}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(quiz.id)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => handleDelete(quiz.id, quiz.title)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {error && (
+      {(createMutation.error || updateMutation.error || deleteMutation.error || bulkCreateMutation.error) && (
         <ErrorMessage
-          title="Failed to load quizzes"
-          message={error instanceof Error ? error.message : "Unknown error"}
+          title="Operation failed"
+          message={
+            (createMutation.error instanceof Error ? createMutation.error.message : "") ||
+            (updateMutation.error instanceof Error ? updateMutation.error.message : "") ||
+            (deleteMutation.error instanceof Error ? deleteMutation.error.message : "") ||
+            (bulkCreateMutation.error instanceof Error ? bulkCreateMutation.error.message : "")
+          }
         />
-      )}
-
-      {!isLoading && !error && data && (
-        <Card>
-          <CardHeader>
-            <CardTitle>All Quizzes ({data.quizzes.length})</CardTitle>
-            <CardDescription>
-              Quizzes created manually or via JSON upload
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {data.quizzes.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <p>No quizzes found. Upload exam content with quizzes or create one manually.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Quiz Title</TableHead>
-                      <TableHead>Exam</TableHead>
-                      <TableHead>Skill</TableHead>
-                      <TableHead className="text-center">Questions</TableHead>
-                      <TableHead className="text-center">Time Limit</TableHead>
-                      <TableHead className="text-center">Passing %</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.quizzes.map((quiz) => (
-                      <TableRow key={quiz.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{quiz.title}</div>
-                            {quiz.description && (
-                              <div className="text-sm text-muted-foreground line-clamp-1">
-                                {quiz.description}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <Badge variant="outline">{quiz.exam.code}</Badge>
-                            <div className="text-sm text-muted-foreground mt-1">
-                              {quiz.domain.title} → {quiz.category.title}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm">{quiz.skill.title}</span>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant="secondary">{quiz.questionCount}</Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {quiz.timeLimit ? (
-                            <div className="flex items-center justify-center gap-1 text-sm">
-                              <Clock className="h-3 w-3" />
-                              {quiz.timeLimit}m
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">No limit</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-1 text-sm">
-                            <Trophy className="h-3 w-3" />
-                            {quiz.passingScore}%
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleEdit(quiz.id)}
-                              title="Edit quiz"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(quiz.id, quiz.title)}
-                              disabled={deleteMutation.isPending}
-                              title="Delete quiz"
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       )}
     </div>
   );

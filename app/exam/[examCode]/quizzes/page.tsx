@@ -133,7 +133,7 @@ export default function QuizzesPage() {
                   <CardContent>
                     <div className="border rounded-lg overflow-hidden">
                       {/* Table Header */}
-                      <div className="grid grid-cols-[200px_200px_1fr] bg-muted/50 border-b font-semibold">
+                      <div className="hidden md:grid md:grid-cols-[200px_200px_1fr] bg-muted/50 border-b font-semibold">
                         <div className="px-4 py-3 border-r">Domain</div>
                         <div className="px-4 py-3 border-r">Category</div>
                         <div className="px-4 py-3">Skill & Quizzes</div>
@@ -160,15 +160,29 @@ export default function QuizzesPage() {
                                 return (
                                   <div
                                     key={quiz.id}
-                                    className="grid grid-cols-[200px_200px_1fr] border-b last:border-b-0"
+                                    className="flex flex-col md:grid md:grid-cols-[200px_200px_1fr] border-b last:border-b-0"
                                   >
-                                    <div className={`px-4 py-3 border-r font-medium align-top ${showDomain ? '' : 'opacity-0 pointer-events-none'}`}>
+                                    <div className={`hidden md:block px-4 py-3 border-r font-medium align-top ${showDomain ? '' : 'opacity-0 pointer-events-none'}`}>
                                       {showDomain && domainTitle}
                                     </div>
-                                    <div className={`px-4 py-3 border-r text-sm align-top ${showCategory ? '' : 'opacity-0 pointer-events-none'}`}>
+                                    <div className={`hidden md:block px-4 py-3 border-r text-sm align-top ${showCategory ? '' : 'opacity-0 pointer-events-none'}`}>
                                       {showCategory && categoryTitle}
                                     </div>
-                                    <div className="px-4 py-3">
+                                    <div className="px-4 py-3 w-full min-w-0">
+                                      {/* Mobile Headers */}
+                                      <div className="md:hidden space-y-1 mb-4">
+                                        {showDomain && (
+                                          <div className="font-semibold text-lg text-foreground border-b pb-1 mb-2">
+                                            {domainTitle}
+                                          </div>
+                                        )}
+                                        {showCategory && (
+                                          <div className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                                            {categoryTitle}
+                                          </div>
+                                        )}
+                                      </div>
+
                                       {showSkill && (
                                         <div className="text-sm font-medium text-muted-foreground mb-3">
                                           {skillTitle}
@@ -176,17 +190,17 @@ export default function QuizzesPage() {
                                       )}
                                       <Card className="border-l-4 border-l-primary">
                                         <CardHeader className="pb-3">
-                                          <div className="flex items-start justify-between gap-4">
+                                          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                                             <div className="flex-1 min-w-0">
-                                              <CardTitle className="text-base">{quiz.title}</CardTitle>
+                                              <CardTitle className="text-base break-words">{quiz.title}</CardTitle>
                                               {quiz.description && (
-                                                <CardDescription className="mt-1">
+                                                <CardDescription className="mt-1 line-clamp-2">
                                                   {quiz.description}
                                                 </CardDescription>
                                               )}
                                             </div>
                                             {quiz.userStats && (
-                                              <div className="shrink-0">
+                                              <div className="shrink-0 self-start">
                                                 {quiz.userStats.passed ? (
                                                   <Badge className="bg-green-600">
                                                     <CheckCircle className="mr-1 h-3 w-3" />
@@ -202,25 +216,25 @@ export default function QuizzesPage() {
                                           </div>
                                         </CardHeader>
                                         <CardContent>
-                                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                                          <div className="flex flex-col gap-4">
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                                               <div className="flex items-center gap-1">
                                                 <Trophy className="h-4 w-4" />
-                                                {quiz.questionCount} questions
+                                                <span className="whitespace-nowrap">{quiz.questionCount} Qs</span>
                                               </div>
                                               {quiz.timeLimit && (
                                                 <div className="flex items-center gap-1">
                                                   <Clock className="h-4 w-4" />
-                                                  {quiz.timeLimit} min
+                                                  <span className="whitespace-nowrap">{quiz.timeLimit} min</span>
                                                 </div>
                                               )}
-                                              <div>Pass: {quiz.passingScore}%</div>
+                                              <div className="whitespace-nowrap">Pass: {quiz.passingScore}%</div>
                                               {quiz.userStats && (
-                                                <div>Attempts: {quiz.userStats.attempts}</div>
+                                                <div className="whitespace-nowrap">Attempts: {quiz.userStats.attempts}</div>
                                               )}
                                             </div>
-                                            <Link href={`/exam/${examCode}/quizzes/${quiz.id}/take`}>
-                                              <Button size="sm" className="w-full sm:w-auto">
+                                            <Link href={`/exam/${examCode}/quizzes/${quiz.id}/take`} className="w-full">
+                                              <Button size="sm" className="w-full">
                                                 <Play className="mr-2 h-4 w-4" />
                                                 {quiz.userStats ? "Retake Quiz" : "Start Quiz"}
                                               </Button>

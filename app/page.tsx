@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SignedOut } from "@clerk/nextjs";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
@@ -25,9 +26,11 @@ export default function Home() {
               <Link href="/sign-up">
                 <Button size="lg" className="w-full sm:w-auto">Start Your Free Practice Test</Button>
               </Link>
-              <Link href="/sign-in">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">Sign In</Button>
-              </Link>
+              <SignedOut>
+                <Link href="/sign-in">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">Sign In</Button>
+                </Link>
+              </SignedOut>
             </div>
             <div>
               <p className="text-sm text-muted-foreground mb-4">Prepare for certifications from:</p>
