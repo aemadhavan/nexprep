@@ -67,6 +67,8 @@ export default function SkillsManagementPage() {
   const [selectedDomain, setSelectedDomain] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedExam, setSelectedExam] = useState("");
+  const [generatingSkill, setGeneratingSkill] = useState<Skill | null>(null);
+  const [lastGeneratedSkillId, setLastGeneratedSkillId] = useState<string | null>(null);
 
   // Fetch categories for dropdown
   const { data: categories } = useQuery({
@@ -174,6 +176,37 @@ export default function SkillsManagementPage() {
     },
   });
 
+  // Generate Quiz mutation
+  const generateQuizMutation = useMutation({
+    mutationFn: async (skillId: string) => {
+      const response = await fetch("/api/admin/generate-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ skillId }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to generate quiz");
+      }
+      return response.json();
+    },
+    onSuccess: (_, skillId) => {
+      setGeneratingSkill(null);
+      setLastGeneratedSkillId(skillId);
+      toast.success("Quiz Generated Successfully", {
+        description: "Review the new quiz in the Admin Quizzes page.",
+      });
+      // Invalidate both lists optionally, though quizzes is most important
+      queryClient.invalidateQueries({ queryKey: ["admin-quizzes"] });
+    },
+    onError: (error) => {
+      setGeneratingSkill(null);
+      toast.error("Quiz Generation Failed", {
+        description: error.message,
+      });
+    },
+  });
+
   // Derive unique exams and domains for filters
   const uniqueExams = Array.from(new Set(categories?.map(c => JSON.stringify(c.domain.exam)))).map(e => JSON.parse(e) as Exam);
 
@@ -260,10 +293,8 @@ export default function SkillsManagementPage() {
   };
 
   const handleGenerateQuiz = (skill: Skill) => {
-    toast.message("Quiz Generation Started", {
-      description: `Generating quiz for skill: ${skill.title}`,
-    });
-    // TODO: Implement actual AI generation logic here
+    setGeneratingSkill(skill);
+    generateQuizMutation.mutate(skill.id);
   };
 
   const handleBulkSubmit = (e: React.FormEvent) => {
@@ -481,6 +512,27 @@ export default function SkillsManagementPage() {
               </form>
             </DialogContent>
           </Dialog>
+
+          {/* Progress Modal */}
+          <Dialog open={!!generatingSkill} onOpenChange={() => { }}>
+            <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+              <DialogHeader>
+                <DialogTitle>Generating Quiz</DialogTitle>
+                <DialogDescription>
+                  Please wait while AI generates questions for this skill.
+                </DialogDescription>
+              </DialogHeader>
+              {generatingSkill && (
+                <div className="flex flex-col items-center justify-center py-6 space-y-4">
+                  <LoadingSpinner size="lg" />
+                  <div className="text-center space-y-1">
+                    <p className="font-medium">{generatingSkill.title}</p>
+                    <p className="text-sm text-muted-foreground">{generatingSkill.category.domain.exam.code} / {generatingSkill.category.domain.title}</p>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -582,7 +634,10 @@ export default function SkillsManagementPage() {
                 </TableRow>
               ) : (
                 filteredSkills?.map((skill) => (
-                  <TableRow key={skill.id}>
+                  <TableRow
+                    key={skill.id}
+                    className={skill.id === lastGeneratedSkillId ? "bg-green-50/50" : ""}
+                  >
                     <TableCell className="font-medium">{skill.order}</TableCell>
                     <TableCell>{skill.title}</TableCell>
                     <TableCell>{skill.category.title}</TableCell>
