@@ -81,7 +81,7 @@ Return ONLY a valid JSON object matching this schema.
         // I will use "gemini-1.5-flash" to be safe and functional immediately.
 
         const model = genAI.getGenerativeModel({
-            model: "gemini-3-flash-preview",
+            model: "gemini-2.5-flash",
             generationConfig: {
                 responseMimeType: "application/json",
                 responseSchema: {
@@ -196,6 +196,18 @@ Return ONLY a valid JSON object matching this schema.
         return NextResponse.json({ success: true, quizId: targetQuizId });
     } catch (error: any) {
         console.error("Quiz generation error:", error);
+
+        // Check for Quota Exceeded / Rate Limit errors
+        if (error.message?.includes("429") || error.status === 429) {
+            return NextResponse.json(
+                {
+                    error: "Quota exceeded or rate limit hit. Please try again in a minute.",
+                    details: error.message
+                },
+                { status: 429 }
+            );
+        }
+
         return NextResponse.json(
             { error: "Failed to generate quiz", details: error.message },
             { status: 500 }
